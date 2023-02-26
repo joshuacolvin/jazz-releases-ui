@@ -36,6 +36,27 @@ export const GET_LABEL_BY_ID = gql`
   }
 `;
 
+export const GET_RELEASES_BY_CATALOGUE_NUMBER = gql`
+  query GetReleasesByCatalogueNumber($catalogueNumber: String!) {
+    getReleasesByCatalogueNumber(catalogueNumber: $catalogueNumber) {
+      id
+      title
+      imageUrl
+      catalogueNumber
+      released
+      artist {
+        name
+      }
+      personnel {
+        name
+      }
+      label {
+        name
+      }
+    }
+  }
+`;
+
 export const GET_ALL_RELEASES_FOR_ARTIST = gql`
   query GetAllReleasesForArtist($name: String!) {
     getAllReleasesForArtist(name: $name) {
@@ -60,6 +81,29 @@ export const GET_ALL_RELEASES_FOR_ARTIST = gql`
 export const GET_RELEASES_BY_LABEL_ID = gql`
   query GetReleasesByLabelId($labelId: String!) {
     getReleasesByLabelId(labelId: $labelId) {
+      id
+      title
+      artist {
+        id
+        name
+      }
+      label {
+        id
+        name
+      }
+      catalogueNumber
+      imageUrl
+      released
+      personnel {
+        name
+      }
+    }
+  }
+`;
+
+export const GET_RELEASES_BY_LABEL_NAME = gql`
+  query GetReleasesByLabelName($labelName: String!) {
+    getReleasesByLabelName(labelName: $labelName) {
       id
       title
       artist {
