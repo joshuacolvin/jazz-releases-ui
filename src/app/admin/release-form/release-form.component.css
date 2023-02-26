@@ -1,0 +1,9 @@
+input[type="checkbox"] {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.bg-bn-blue {
+  --tw-bg-opacity: 1;
+  background-color: #024794;
+}

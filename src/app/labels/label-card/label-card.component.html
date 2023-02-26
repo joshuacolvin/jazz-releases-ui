@@ -1,0 +1,19 @@
+<div class="h-full max-w-sm overflow-hidden rounded shadow-lg hover:shadow-2xl">
+  <a [routerLink]="label.id" class="flex h-full flex-col justify-between">
+    <div class="px-4 py-4">
+      <img
+        class="aspect-auto w-full"
+        [src]="imageUrl"
+        alt="Sunset in the mountains"
+      />
+    </div>
+    <div class="px-6 py-4">
+      <div class="mb-2 text-xl font-bold">{{ name }}</div>
+      <p class="text-base text-gray-700">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus
+        quia, nulla! Maiores et perferendis eaque, exercitationem praesentium
+        nihil.
+      </p>
+    </div>
+  </a>
+</div>

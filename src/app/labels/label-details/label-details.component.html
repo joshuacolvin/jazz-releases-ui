@@ -1,0 +1,6 @@
+<div *ngIf="label$ | async; let label">
+  <h1 class="my-8 mx-1 text-4xl font-bold">{{ label.name }}</h1>
+  <div *ngFor="let release of releases$ | async">
+    <app-release-card [release]="release"></app-release-card>
+  </div>
+</div>

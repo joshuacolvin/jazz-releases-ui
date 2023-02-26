@@ -1,0 +1,27 @@
+<h1 class="my-8 mx-1 text-4xl font-bold">Home</h1>
+
+<form class="w-full" [formGroup]="form" (ngSubmit)="onSearch()">
+  <div class="flex items-center">
+    <input
+      class="focus:shadow-outline w-full appearance-none rounded border py-2 px-3 leading-tight text-gray-700 shadow focus:outline-none"
+      type="text"
+      formControlName="name"
+      placeholder="Search for an Artist"
+    />
+    <button class="bg-bn-blue mx-4 rounded py-2 px-4 text-white" type="submit">
+      Search
+    </button>
+  </div>
+</form>
+
+<div *ngIf="releases$ | async; let releases" class="mt-6">
+  <div *ngIf="!releases.length">
+    No releases found for {{ form.value.name }}
+  </div>
+
+  <ul className="divide-y divide-slate-100">
+    <ng-container *ngFor="let release of releases">
+      <app-release-card [release]="release"></app-release-card>
+    </ng-container>
+  </ul>
+</div>
