@@ -1,0 +1,12 @@
+<div *ngIf="releases$ | async; let releases" class="container mb-12">
+  <h2 class="font-bo mt-12 mb-6 text-xl">
+    Showing {{ releases.length }} result(s)
+    <span [innerHTML]="header"></span>
+  </h2>
+
+  <ul className="divide-y divide-slate-100 my-6">
+    <ng-container *ngFor="let release of releases">
+      <app-release-card [release]="release"></app-release-card>
+    </ng-container>
+  </ul>
+</div>

@@ -1,5 +1,3 @@
-<h1 class="my-8 mx-1 text-4xl font-bold">Add Release</h1>
-
 <form class="w-full max-w-2xl" [formGroup]="form" (ngSubmit)="onSubmit()">
   <div class="flex gap-4">
     <div class="w-1/2" formGroupName="artist">
@@ -128,48 +126,73 @@
       />
     </div>
   </div>
+  <div class="mb-12 flex gap-4">
+    <div>
+      <img *ngIf="imagePreview" [src]="imagePreview" alt="" />
+    </div>
+  </div>
 
   <div formArrayName="personnel">
     <h2 class="my-4 text-xl font-bold">Personnel</h2>
 
     <div class="mb-4" *ngFor="let _ of personnel.controls; index as i">
-      <div class="flex gap-4" [formGroupName]="i">
-        <div class="w-2/5">
-          <label
-            class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
-            for="name"
-            >name
-          </label>
-          <input
-            #personnelName
-            class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-            formControlName="name"
-          />
+      <div [formGroupName]="i">
+        <div class="flex gap-4">
+          <div class="w-1/2">
+            <label
+              class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+              for="name"
+              >name
+            </label>
+            <input
+              #personnelName
+              class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+              formControlName="name"
+            />
+          </div>
+          <div class="w-1/2">
+            <label
+              class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+              for="instruments"
+            >
+              instruments
+            </label>
+            <input
+              class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+              formControlName="instruments"
+              placeholder="piano, trumpet"
+            />
+          </div>
         </div>
-        <div class="w-2/5">
-          <label
-            class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
-            for="instruments"
-          >
-            instruments
-          </label>
-          <input
-            class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-            formControlName="instruments"
-            placeholder="piano, trumpet"
-          />
-        </div>
-        <div class="w-1/5">
-          <label
-            class="block text-xs font-bold uppercase tracking-wide text-gray-700"
-            for="leader"
-            >Leader?
-          </label>
-          <input
-            class="my-2 rounded"
-            formControlName="leader"
-            type="checkbox"
-          />
+        <div class="flex gap-4">
+          <div class="w-1/2">
+            <label
+              class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+              for="appearsOn"
+            >
+              appears on
+            </label>
+            <input
+              class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+              formControlName="appearsOn"
+              placeholder="A1, B3"
+            />
+          </div>
+          <div class="w-1/4">
+            <label
+              class="block text-xs font-bold uppercase tracking-wide text-gray-700"
+              for="leader"
+              >Leader?
+            </label>
+            <input
+              class="my-2 rounded"
+              formControlName="leader"
+              type="checkbox"
+            />
+          </div>
+          <button *ngIf="release" type="button" (click)="deletePersonnel(i)">
+            Delete
+          </button>
         </div>
       </div>
     </div>
@@ -241,6 +264,11 @@
               placeholder="A1"
             />
           </div>
+        </div>
+        <div class="flex flex-row-reverse gap-4">
+          <button *ngIf="release" type="button" (click)="deleteTrack(i)">
+            Delete
+          </button>
         </div>
       </div>
     </div>

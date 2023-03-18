@@ -1,0 +1,5 @@
+<h1 class="my-8 mx-1 text-4xl font-bold">Edit Release</h1>
+
+<div *ngIf="release$ | async; let release">
+  <app-release-form [release]="release"></app-release-form>
+</div>

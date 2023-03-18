@@ -1,0 +1,17 @@
+.bg-bn-blue {
+  --tw-bg-opacity: 1;
+  background-color: #024794;
+}
+
+.tracks {
+  display: grid;
+  grid-template-columns: max-content 1fr 1fr;
+}
+
+.personnel {
+  grid-template-columns: max-content 1fr;
+}
+
+.text-bn-blue {
+  color: #024794;
+}

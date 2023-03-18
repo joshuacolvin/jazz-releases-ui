@@ -15,7 +15,7 @@ const defaultOptions: DefaultOptions = {
   },
 };
 
-const uri = 'https://jazz-releases-api-production.up.railway.app/';
+const uri = 'http://localhost:9090/';
 
 export function createApollo(httpLink: HttpLink): ApolloClientOptions<any> {
   return {

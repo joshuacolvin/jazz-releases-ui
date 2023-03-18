@@ -8,3 +8,6 @@ export function media(query: string): Observable<boolean> {
     map((list: MediaQueryList) => list.matches)
   );
 }
+
+export const titleCase = (str: string) =>
+  str.toLowerCase().replace(/\b\w/g, (s) => s.toUpperCase());

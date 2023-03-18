@@ -1,6 +1,7 @@
 import { RouterModule } from '@angular/router';
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import type { Label } from 'src/app/types/query-types';
 
 @Component({
   selector: 'app-label-card',
@@ -10,7 +11,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./label-card.component.css'],
 })
 export class LabelCardComponent {
-  @Input() label!: any;
+  @Input() label!: Label;
 
   get labelId() {
     return this.label.id;

@@ -6,6 +6,7 @@ export interface Artist {
 export interface Label {
   id: string;
   name: string;
+  imageUrl?: string;
 }
 
 export interface Personnel {
@@ -13,6 +14,7 @@ export interface Personnel {
   name: string;
   instruments: string[];
   leader: boolean;
+  appearsOn: string[];
 }
 
 export interface Track {

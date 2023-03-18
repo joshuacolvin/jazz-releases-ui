@@ -8,6 +8,7 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { GET_RELEASES_BY_LABEL_ID, GET_LABEL_BY_ID } from 'src/app/graphql';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import type { Label, Release } from 'src/app/types/query-types';
 
 @Component({
   selector: 'app-label-details',
@@ -17,8 +18,8 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
   styleUrls: ['./label-details.component.css'],
 })
 export class LabelDetailsComponent implements OnInit, OnDestroy {
-  public label$!: Observable<any>;
-  public releases$!: Observable<any>;
+  public label$!: Observable<Label>;
+  public releases$!: Observable<Release[]>;
   private apollo = inject(Apollo);
   private destroy$: Subject<void> = new Subject<void>();
   private route = inject(ActivatedRoute);

@@ -1,5 +1,6 @@
 import gql from 'graphql-tag';
 
+// Label Queries
 export const GET_LABEL_BY_NAME_QUERY = gql`
   query GetLabelByName($name: String!) {
     getLabelByName(name: $name) {
@@ -36,6 +37,7 @@ export const GET_LABEL_BY_ID = gql`
   }
 `;
 
+// Release Queries
 export const GET_RELEASES_BY_CATALOGUE_NUMBER = gql`
   query GetReleasesByCatalogueNumber($catalogueNumber: String!) {
     getReleasesByCatalogueNumber(catalogueNumber: $catalogueNumber) {
@@ -45,9 +47,6 @@ export const GET_RELEASES_BY_CATALOGUE_NUMBER = gql`
       catalogueNumber
       released
       artist {
-        name
-      }
-      personnel {
         name
       }
       label {
@@ -68,11 +67,56 @@ export const GET_ALL_RELEASES_FOR_ARTIST = gql`
       artist {
         name
       }
+      label {
+        name
+      }
       personnel {
+        name
+        leader
+      }
+    }
+  }
+`;
+
+export const GET_RELEASES_FOR_LEADER = gql`
+  query GetReleasesForLeader($name: String!) {
+    getReleasesForLeader(name: $name) {
+      id
+      title
+      imageUrl
+      catalogueNumber
+      released
+      artist {
         name
       }
       label {
         name
+      }
+      personnel {
+        name
+        leader
+      }
+    }
+  }
+`;
+
+export const GET_RELEASES_FOR_SIDEMAN = gql`
+  query GetReleasesForSideman($name: String!) {
+    getReleasesForSideman(name: $name) {
+      id
+      title
+      imageUrl
+      catalogueNumber
+      released
+      artist {
+        name
+      }
+      label {
+        name
+      }
+      personnel {
+        name
+        leader
       }
     }
   }
@@ -95,6 +139,7 @@ export const GET_RELEASES_BY_LABEL_ID = gql`
       imageUrl
       released
       personnel {
+        id
         name
       }
     }
@@ -118,8 +163,84 @@ export const GET_RELEASES_BY_LABEL_NAME = gql`
       imageUrl
       released
       personnel {
+        id
         name
       }
+    }
+  }
+`;
+
+export const GET_RELEASES_BY_SERIES = gql`
+  query GetReleasesBySeries($last: String!, $first: String!) {
+    getReleasesBySeries(last: $last, first: $first) {
+      id
+      title
+      artist {
+        id
+        name
+      }
+      label {
+        id
+        name
+      }
+      catalogueNumber
+      imageUrl
+      released
+    }
+  }
+`;
+
+export const GET_RELEASE_BY_ID = gql`
+  query GetReleaseById($releaseId: String!) {
+    getReleaseById(releaseId: $releaseId) {
+      id
+      title
+      artist {
+        id
+        name
+      }
+      label {
+        id
+        name
+      }
+      catalogueNumber
+      imageUrl
+      released
+      recorded
+      personnel {
+        id
+        name
+        instruments
+        leader
+        appearsOn
+      }
+      tracks {
+        id
+        title
+        composedBy
+        length
+        number
+      }
+    }
+  }
+`;
+
+export const GET_RELEASE_BY_TITLE = gql`
+  query GetReleaseByTitle($title: String!) {
+    getReleaseByTitle(title: $title) {
+      id
+      title
+      artist {
+        id
+        name
+      }
+      label {
+        id
+        name
+      }
+      catalogueNumber
+      imageUrl
+      released
     }
   }
 `;
@@ -127,29 +248,30 @@ export const GET_RELEASES_BY_LABEL_NAME = gql`
 // MUTATIONS
 export const CREATE_RELEASE = gql`
   mutation createRelease($input: ReleaseInput!) {
-    createRelease(input: $input) {
+    createRelease(input: $input)
+  }
+`;
+
+export const UPDATE_RELEASE = gql`
+  mutation updateRelease($input: ReleaseInput!) {
+    updateRelease(input: $input) {
       id
-      artist {
-        id
-        name
-      }
-      title
-      catalogueNumber
-      label {
-        id
-        name
-      }
-      imageUrl
-      personnel {
-        id
-        name
-      }
-      tracks {
-        id
-        title
-      }
-      recorded
-      released
+    }
+  }
+`;
+
+export const DELETE_PERSONNEL_BY_ID = gql`
+  mutation DeletePersonnelById($personnelId: String!) {
+    deletePersonnelById(personnelId: $personnelId) {
+      id
+    }
+  }
+`;
+
+export const DELETE_TRACK_BY_ID = gql`
+  mutation DeleteTrackById($trackId: String!) {
+    deleteTrackById(trackId: $trackId) {
+      id
     }
   }
 `;

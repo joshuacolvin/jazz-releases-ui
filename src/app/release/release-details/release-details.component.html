@@ -1,1 +1,70 @@
-<p>release-details works!</p>
+<div *ngIf="release$ | async; let release" class="my-12">
+  <div class="flex w-full flex-col gap-8 md:flex-row">
+    <div class="flex w-full flex-col md:w-1/4">
+      <img [src]="release.imageUrl" [alt]="release.title" />
+      <div class="my-12">
+        <button
+          class="bg-bn-blue hidden rounded py-2 px-4 text-white md:block"
+          (click)="onEdit()"
+        >
+          Edit
+        </button>
+      </div>
+    </div>
+    <div class="3/4">
+      <div class="flex items-center justify-between">
+        <h1 class="text-4xl font-bold text-gray-700">
+          <a
+            class="text-bn-blue font-medium hover:underline dark:text-blue-500"
+            [routerLink]="'/artist/' + release.artist.id"
+            >{{ release.artist.name }}</a
+          >
+          - {{ release.title }}
+        </h1>
+      </div>
+      <div class="my-4 tracking-wide text-gray-700">
+        <div class="grid grid-cols-2 gap-x-4">
+          <div *ngIf="release?.label" class="font-bold uppercase">Label</div>
+          <div *ngIf="release?.label">{{ release?.label?.name }}</div>
+          <div *ngIf="release?.catalogueNumber" class="font-bold uppercase">
+            Cat. No.
+          </div>
+          <div *ngIf="release?.catalogueNumber">
+            {{ release?.catalogueNumber }}
+          </div>
+          <div *ngIf="release?.recorded" class="font-bold uppercase">
+            Recorded
+          </div>
+          <div *ngIf="release?.recorded">{{ release?.recorded }}</div>
+          <div *ngIf="release?.released" class="font-bold uppercase">
+            Released
+          </div>
+          <div *ngIf="release?.released">{{ release?.released }}</div>
+        </div>
+      </div>
+      <div class="my-4">
+        <h2 class="text-1xl my-2 font-bold uppercase">Tracks</h2>
+        <div class="tracks gap-x-4">
+          <ng-container *ngFor="let track of release?.tracks">
+            <div>
+              {{ track.number }}
+            </div>
+            <div>{{ track.title }} ({{ track.composedBy }})</div>
+            <div>{{ track.length }}</div>
+          </ng-container>
+        </div>
+      </div>
+      <div class="my-4">
+        <h2 class="text-1xl my-2 font-bold uppercase">Personnel</h2>
+        <div class="personnel grid gap-x-4">
+          <ng-container *ngFor="let personnel of release?.personnel">
+            <div>
+              {{ personnel.name }}
+            </div>
+            <div>{{ personnel.instruments }}</div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -7,12 +7,15 @@ export interface LabelInput {
 }
 
 export interface PersonnelInput {
+  id?: string;
   name: string;
   instruments?: string[];
   leader?: boolean;
+  appearsOn?: string[];
 }
 
 export interface TrackInput {
+  id?: string;
   title: string;
   composedBy?: string[];
   length?: string;

@@ -1,6 +1,7 @@
 import { RouterModule } from '@angular/router';
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import type { Personnel, Release } from 'src/app/types/query-types';
 
 @Component({
   selector: 'app-release-card',
@@ -10,7 +11,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./release-card.component.css'],
 })
 export class ReleaseCardComponent {
-  @Input() release!: any;
+  @Input() release!: Release;
 
   get artist() {
     return this.release.artist.name;
@@ -21,7 +22,11 @@ export class ReleaseCardComponent {
   }
 
   get imageUrl() {
-    return this.release.imageUrl;
+    if (this.release?.imageUrl !== '') {
+      return this.release.imageUrl;
+    } else {
+      return 'https://placehold.jp/100x100.png';
+    }
   }
 
   get label() {
@@ -29,7 +34,11 @@ export class ReleaseCardComponent {
   }
 
   get personnel() {
-    return this.release.personnel.map((p: any) => p.name).join(', ');
+    return this.release?.personnel?.sort(
+      (a: any, b: any) => b.leader - a.leader
+    );
+    // .map((p: Personnel) => p?.name)
+    // .join(', ');
   }
 
   get releaseId() {
@@ -37,7 +46,7 @@ export class ReleaseCardComponent {
   }
 
   get released() {
-    return this.release.released;
+    return this.release?.released;
   }
 
   get title() {

@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import type { Observable } from 'rxjs';
 import { map } from 'rxjs';
 import { Subject, takeUntil } from 'rxjs';
+import type { Label } from '../types/query-types';
 
 @Component({
   selector: 'app-labels',
@@ -19,7 +20,7 @@ import { Subject, takeUntil } from 'rxjs';
 export class LabelsComponent implements OnInit, OnDestroy {
   private apollo = inject(Apollo);
   private destroy$: Subject<void> = new Subject<void>();
-  public labels$!: Observable<any>;
+  public labels$!: Observable<Label[]>;
 
   ngOnDestroy(): void {
     this.destroy$.next();
