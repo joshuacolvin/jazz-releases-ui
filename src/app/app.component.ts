@@ -12,9 +12,10 @@ export class AppComponent implements OnInit {
   showMenu = true;
 
   ngOnInit() {
-    media('(max-width: 1023px)').subscribe(
-      (matches) => (this.isMobile = matches)
-    );
+    media('(max-width: 1023px)').subscribe((matches) => {
+      this.isMobile = matches;
+      this.showMenu = !this.isMobile;
+    });
   }
 
   toggleMenu() {
