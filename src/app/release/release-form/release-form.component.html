@@ -85,20 +85,6 @@
     <div class="w-1/2">
       <label
         class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
-        for="recorded"
-        >Recorded
-      </label>
-      <input
-        class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-        id="recorded"
-        type="text"
-        formControlName="recorded"
-        placeholder="YYYY"
-      />
-    </div>
-    <div class="w-1/2">
-      <label
-        class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
         for="released"
         >Released
       </label>
@@ -110,6 +96,7 @@
         placeholder="YYYY"
       />
     </div>
+    <div class="w-1/2"></div>
   </div>
   <div class="flex gap-4">
     <div class="w-full">
@@ -132,158 +119,274 @@
     </div>
   </div>
 
-  <div formArrayName="personnel">
-    <h2 class="my-4 text-xl font-bold">Personnel</h2>
+  <div
+    formArrayName="sessions"
+    class="group rounded-md p-3 bg-white ring-1 ring-slate-200 shadow-sm py-6 px-6"
+  >
+    <h2 class="my-4 text-2xl font-bold">Sessions</h2>
+    <div
+      class="mb-8 border-b-2 border-slate-100"
+      *ngFor="let session of sessions.controls; index as sessionIndex"
+    >
+      <div [formGroupName]="sessionIndex">
+        <details [open]="sessionIndex === openSession">
+          <summary class="flex items-center font-semibold">
+            <h3 class="my-4 text-lg text-slate-500 text-right">
+              Session {{ sessionIndex + 1 }}
+            </h3>
+            <button class="ml-auto">
+              <svg
+                class="fill-current opacity-75 w-4 h-4 -mr-1"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z"
+                />
+              </svg>
+            </button>
+          </summary>
 
-    <div class="mb-4" *ngFor="let _ of personnel.controls; index as i">
-      <div [formGroupName]="i">
-        <div class="flex gap-4">
-          <div class="w-1/2">
-            <label
-              class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
-              for="name"
-              >name
-            </label>
-            <input
-              #personnelName
-              class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-              formControlName="name"
-            />
+          <div class="flex gap-4">
+            <div class="w-1/2">
+              <label
+                class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                for="date"
+                >date
+              </label>
+              <input
+                #sessionDate
+                class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                formControlName="date"
+              />
+            </div>
           </div>
-          <div class="w-1/2">
-            <label
-              class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
-              for="instruments"
+          <div class="flex gap-4" formGroupName="studio">
+            <div class="w-1/2">
+              <label
+                class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                for="name"
+                >Studio
+              </label>
+              <input
+                #studio
+                class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                formControlName="name"
+              />
+            </div>
+            <div class="w-1/2">
+              <label
+                class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                for="location"
+                >Location
+              </label>
+              <input
+                #studio
+                class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                formControlName="location"
+              />
+            </div>
+          </div>
+          <div formArrayName="personnel">
+            <h2 class="my-4 text-xl font-bold">Personnel</h2>
+
+            <div
+              class="mb-4"
+              *ngFor="
+                let personnel of personnel(sessionIndex).controls;
+                index as personnelIndex
+              "
             >
-              instruments
-            </label>
-            <input
-              class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-              formControlName="instruments"
-              placeholder="piano, trumpet"
-            />
+              <div [formGroupName]="personnelIndex">
+                <div class="flex gap-4">
+                  <div class="w-1/2">
+                    <label
+                      class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                      for="name"
+                      >name
+                    </label>
+                    <input
+                      #personnelName
+                      class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                      formControlName="name"
+                    />
+                  </div>
+                  <div class="w-1/2">
+                    <label
+                      class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                      for="instruments"
+                    >
+                      instruments
+                    </label>
+                    <input
+                      class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                      formControlName="instruments"
+                      placeholder="piano, trumpet"
+                    />
+                  </div>
+                </div>
+                <div class="flex gap-4">
+                  <div class="w-1/2">
+                    <label
+                      class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                      for="appearsOn"
+                    >
+                      appears on
+                    </label>
+                    <input
+                      class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                      formControlName="appearsOn"
+                      placeholder="A1, B3"
+                    />
+                  </div>
+                  <div class="w-1/4">
+                    <label
+                      class="block text-xs font-bold uppercase tracking-wide text-gray-700"
+                      for="leader"
+                      >Leader?
+                    </label>
+                    <input
+                      class="my-2 rounded"
+                      formControlName="leader"
+                      type="checkbox"
+                    />
+                  </div>
+                  <button
+                    *ngIf="release"
+                    type="button"
+                    (click)="deletePersonnel(sessionIndex, personnelIndex)"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="my-2 flex flex-row-reverse">
+              <button
+                class="flex-shrink-0 rounded border-4 border-transparent py-1 px-2 text-lg text-blue-500 hover:text-blue-800"
+                type="button"
+                (click)="addPersonnel(sessionIndex)"
+              >
+                Add Personnel
+              </button>
+            </div>
           </div>
-        </div>
-        <div class="flex gap-4">
-          <div class="w-1/2">
-            <label
-              class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
-              for="appearsOn"
+          <div formArrayName="tracks">
+            <h2 class="my-4 text-xl font-bold">Tracks</h2>
+
+            <div
+              class="mb-4"
+              *ngFor="
+                let track of tracks(sessionIndex).controls;
+                index as trackIndex
+              "
             >
-              appears on
-            </label>
-            <input
-              class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-              formControlName="appearsOn"
-              placeholder="A1, B3"
-            />
+              <div [formGroupName]="trackIndex">
+                <div class="flex gap-4">
+                  <div class="w-1/2">
+                    <label
+                      class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                      for="title"
+                      >title
+                    </label>
+                    <input
+                      #trackTitle
+                      class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                      formControlName="title"
+                    />
+                  </div>
+                  <div class="w-1/2">
+                    <label
+                      class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                      for="composedBy"
+                    >
+                      composers
+                    </label>
+                    <input
+                      class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                      formControlName="composedBy"
+                      placeholder="Horace Silver, Sonny Rollins"
+                    />
+                  </div>
+                </div>
+                <div class="flex gap-4">
+                  <div class="w-1/2">
+                    <label
+                      class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                      for="length"
+                      >length
+                    </label>
+                    <input
+                      class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                      formControlName="length"
+                      placeholder="4:45"
+                    />
+                  </div>
+                  <div class="w-1/2">
+                    <label
+                      class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                      for="number"
+                      >track number
+                    </label>
+                    <input
+                      class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                      formControlName="number"
+                      placeholder="A1"
+                    />
+                  </div>
+                </div>
+                <div class="flex flex-row-reverse gap-4">
+                  <button
+                    *ngIf="release"
+                    type="button"
+                    (click)="deleteTrack(sessionIndex, trackIndex)"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="my-2 flex flex-row-reverse">
+              <button
+                class="flex-shrink-0 rounded border-4 border-transparent py-1 px-2 text-lg text-blue-500 hover:text-blue-800"
+                type="button"
+                (click)="addTrack(sessionIndex)"
+              >
+                Add Track
+              </button>
+            </div>
           </div>
-          <div class="w-1/4">
-            <label
-              class="block text-xs font-bold uppercase tracking-wide text-gray-700"
-              for="leader"
-              >Leader?
-            </label>
-            <input
-              class="my-2 rounded"
-              formControlName="leader"
-              type="checkbox"
-            />
-          </div>
-          <button *ngIf="release" type="button" (click)="deletePersonnel(i)">
-            Delete
-          </button>
-        </div>
+        </details>
       </div>
     </div>
     <div class="my-2 flex flex-row-reverse">
       <button
-        class="flex-shrink-0 rounded border-4 border-transparent py-1 px-2 text-lg text-blue-500 hover:text-blue-800"
+        class="hover:bg-blue-400 group flex items-center rounded-md bg-blue-500 text-white text-sm font-medium pl-2 pr-3 py-2 shadow-sm"
         type="button"
-        (click)="addPersonnel()"
+        (click)="addSession()"
       >
-        Add Personnel
+        <svg
+          width="20"
+          height="20"
+          fill="currentColor"
+          class="mr-2"
+          aria-hidden="true"
+        >
+          <path
+            d="M10 5a1 1 0 0 1 1 1v3h3a1 1 0 1 1 0 2h-3v3a1 1 0 1 1-2 0v-3H6a1 1 0 1 1 0-2h3V6a1 1 0 0 1 1-1Z"
+          />
+        </svg>
+        Add Session
       </button>
     </div>
   </div>
 
-  <div formArrayName="tracks">
-    <h2 class="my-4 text-xl font-bold">Tracks</h2>
-
-    <div class="mb-4" *ngFor="let _ of tracks.controls; index as i">
-      <div [formGroupName]="i">
-        <div class="flex gap-4">
-          <div class="w-1/2">
-            <label
-              class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
-              for="title"
-              >title
-            </label>
-            <input
-              #trackTitle
-              class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-              formControlName="title"
-            />
-          </div>
-          <div class="w-1/2">
-            <label
-              class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
-              for="composedBy"
-            >
-              composers
-            </label>
-            <input
-              class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-              formControlName="composedBy"
-              placeholder="Horace Silver, Sonny Rollins"
-            />
-          </div>
-        </div>
-        <div class="flex gap-4">
-          <div class="w-1/2">
-            <label
-              class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
-              for="length"
-              >length
-            </label>
-            <input
-              class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-              formControlName="length"
-              placeholder="4:45"
-            />
-          </div>
-          <div class="w-1/2">
-            <label
-              class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
-              for="number"
-              >track number
-            </label>
-            <input
-              class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-              formControlName="number"
-              placeholder="A1"
-            />
-          </div>
-        </div>
-        <div class="flex flex-row-reverse gap-4">
-          <button *ngIf="release" type="button" (click)="deleteTrack(i)">
-            Delete
-          </button>
-        </div>
-      </div>
-    </div>
-    <div class="my-2 flex flex-row-reverse">
-      <button
-        class="flex-shrink-0 rounded border-4 border-transparent py-1 px-2 text-lg text-blue-500 hover:text-blue-800"
-        type="button"
-        (click)="addTrack()"
-      >
-        Add Track
-      </button>
-    </div>
+  <div class="flex flex-row-reverse my-6">
+    <button
+      class="hover:bg-blue-400 group flex items-center rounded-md bg-blue-500 text-white text-sm font-medium px-6 py-3 shadow-sm"
+      type="submit"
+    >
+      Save Release
+    </button>
   </div>
-
-  <button class="bg-bn-blue rounded py-2 px-4 text-white" type="submit">
-    Save Release
-  </button>
 </form>

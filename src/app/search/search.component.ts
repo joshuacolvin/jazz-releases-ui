@@ -1,38 +1,38 @@
 import {
   GET_RELEASES_FOR_LEADER,
   GET_RELEASES_FOR_SIDEMAN,
-} from './../graphql';
-import { SearchResultsComponent } from './search-results/search-results.component';
-import { ReleaseCardComponent } from '../release/release-card/release-card.component';
-import { CommonModule } from '@angular/common';
-import type { OnDestroy, OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
-import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+} from "./../graphql";
+import { SearchResultsComponent } from "./search-results/search-results.component";
+import { ReleaseCardComponent } from "../release/release-card/release-card.component";
+import { CommonModule } from "@angular/common";
+import type { OnDestroy, OnInit } from "@angular/core";
+import { Component, inject } from "@angular/core";
+import { FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
 import {
   GET_ALL_RELEASES_FOR_ARTIST,
   GET_RELEASES_BY_CATALOGUE_NUMBER,
   GET_RELEASES_BY_LABEL_NAME,
   GET_RELEASES_BY_SERIES,
   GET_RELEASE_BY_TITLE,
-} from '../graphql';
-import type { Observable } from 'rxjs';
-import { map, Subject, takeUntil } from 'rxjs';
-import { Apollo } from 'apollo-angular';
-import { Router, ActivatedRoute } from '@angular/router';
-import type { Release } from '../types/query-types';
+} from "../graphql";
+import type { Observable } from "rxjs";
+import { map, Subject, takeUntil } from "rxjs";
+import { Apollo } from "apollo-angular";
+import { Router, ActivatedRoute } from "@angular/router";
+import type { Release } from "../types/query-types";
 
 export enum SearchCriteria {
-  Artist = 'artist',
-  CatalogueNumber = 'catalogue number',
-  Label = 'label',
-  Title = 'title',
-  Series = 'series',
+  Artist = "artist",
+  CatalogueNumber = "catalogue number",
+  Label = "label",
+  Title = "title",
+  Series = "series",
 }
 
-export type FilterBy = 'all' | 'leader' | 'sideman';
+export type FilterBy = "all" | "leader" | "sideman";
 
 @Component({
-  selector: 'app-search',
+  selector: "app-search",
   standalone: true,
   imports: [
     CommonModule,
@@ -40,8 +40,8 @@ export type FilterBy = 'all' | 'leader' | 'sideman';
     ReleaseCardComponent,
     SearchResultsComponent,
   ],
-  templateUrl: './search.component.html',
-  styleUrls: ['./search.component.css'],
+  templateUrl: "./search.component.html",
+  styleUrls: ["./search.component.css"],
 })
 export class SearchComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
@@ -51,23 +51,27 @@ export class SearchComponent implements OnInit, OnDestroy {
   private destroy$: Subject<void> = new Subject<void>();
 
   public searchCriteria = [
-    'Artist',
-    'Title',
-    'Catalogue Number',
-    'Label',
-    'Series',
+    "Artist",
+    "Title",
+    "Catalogue Number",
+    "Label",
+    "Series",
   ];
-  public filterOptions: FilterBy[] = ['all', 'leader', 'sideman'];
+  public filterOptions: FilterBy[] = ["all", "leader", "sideman"];
   public releases$!: Observable<Release[]>;
   public form = this.fb.group({
-    searchTerm: ['', Validators.required],
+    searchTerm: ["", Validators.required],
     criteria: [this.searchCriteria[0], Validators.required],
-    filterBy: ['all'],
+    filterBy: ["all"],
   });
-  public searchHeader = '';
+  public searchHeader = "";
 
   get searchTerm() {
-    return this.form.get('searchTerm')?.value;
+    return this.form.get("searchTerm")?.value;
+  }
+
+  get filterBy() {
+    return this.form.get("filterBy")?.value;
   }
 
   ngOnDestroy(): void {
@@ -79,7 +83,7 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.route.queryParams.subscribe((params) => {
       Object.entries(params).forEach(([key, value]) => {
         if (key && value) {
-          this.search(key, value, 'all');
+          this.search(key, value, this.filterBy ?? "all");
           this.form.patchValue({
             criteria: key,
             searchTerm: value,
@@ -139,7 +143,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       case SearchCriteria.CatalogueNumber:
         return {
           query: GET_RELEASES_BY_CATALOGUE_NUMBER,
-          queryName: 'getReleasesByCatalogueNumber',
+          queryName: "getReleasesByCatalogueNumber",
           variables: {
             catalogueNumber: searchTerm.trim(),
           },
@@ -147,7 +151,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       case SearchCriteria.Title:
         return {
           query: GET_RELEASE_BY_TITLE,
-          queryName: 'getReleaseByTitle',
+          queryName: "getReleaseByTitle",
           variables: {
             title: searchTerm.trim(),
           },
@@ -155,35 +159,35 @@ export class SearchComponent implements OnInit, OnDestroy {
       case SearchCriteria.Label:
         return {
           query: GET_RELEASES_BY_LABEL_NAME,
-          queryName: 'getReleasesByLabelName',
+          queryName: "getReleasesByLabelName",
           variables: {
             labelName: searchTerm.trim(),
           },
         };
       case SearchCriteria.Series:
-        const [last, first] = searchTerm.trim().split(',');
+        const [last, first] = searchTerm.trim().split(",");
         return {
           query: GET_RELEASES_BY_SERIES,
-          queryName: 'getReleasesBySeries',
+          queryName: "getReleasesBySeries",
           variables: {
             last: last.trim(),
             first: first.trim(),
           },
         };
       case SearchCriteria.Artist:
-        if (filterBy === 'leader') {
+        if (filterBy === "leader") {
           return {
             query: GET_RELEASES_FOR_LEADER,
-            queryName: 'getReleasesForLeader',
+            queryName: "getReleasesForLeader",
             variables: {
               name: searchTerm.trim(),
             },
           };
         }
-        if (filterBy === 'sideman') {
+        if (filterBy === "sideman") {
           return {
             query: GET_RELEASES_FOR_SIDEMAN,
-            queryName: 'getReleasesForSideman',
+            queryName: "getReleasesForSideman",
             variables: {
               name: searchTerm.trim(),
             },
@@ -191,7 +195,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         }
         return {
           query: GET_ALL_RELEASES_FOR_ARTIST,
-          queryName: 'getAllReleasesForArtist',
+          queryName: "getAllReleasesForArtist",
           variables: {
             name: searchTerm.trim(),
           },
@@ -199,7 +203,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       default:
         return {
           query: GET_ALL_RELEASES_FOR_ARTIST,
-          queryName: 'getAllReleasesForArtist',
+          queryName: "getAllReleasesForArtist",
           variables: {
             name: searchTerm.trim(),
           },
@@ -208,17 +212,17 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   onCriteriaChange() {
-    this.form.get('searchTerm')?.patchValue('');
+    this.form.get("searchTerm")?.patchValue("");
   }
 
   getSearchMessagePrefix(criteria: string) {
     switch (criteria.toLowerCase()) {
       case SearchCriteria.Artist:
-        return 'featuring';
+        return "featuring";
       case SearchCriteria.CatalogueNumber:
-        return 'matching';
+        return "matching";
       default:
-        return 'for';
+        return "for";
     }
   }
 

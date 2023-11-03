@@ -2,6 +2,29 @@
   <div class="flex w-full flex-col gap-8 md:flex-row">
     <div class="flex w-full flex-col md:w-1/4">
       <img [src]="release.imageUrl" [alt]="release.title" />
+      <div class="my-4 tracking-wide text-gray-700">
+        <div class="grid grid-cols-2 gap-x-4">
+          <div *ngIf="release?.label" class="font-bold uppercase">Label</div>
+          <div *ngIf="release?.label">
+            <a
+              class="text-blue-600"
+              [routerLink]="'/label/' + release.label.id"
+            >
+              {{ release?.label?.name }}
+            </a>
+          </div>
+          <div *ngIf="release?.catalogueNumber" class="font-bold uppercase">
+            Cat. No.
+          </div>
+          <div *ngIf="release?.catalogueNumber">
+            {{ release?.catalogueNumber }}
+          </div>
+          <div *ngIf="release?.released" class="font-bold uppercase">
+            Released
+          </div>
+          <div *ngIf="release?.released">{{ release?.released }}</div>
+        </div>
+      </div>
       <div class="my-12">
         <button
           class="bg-bn-blue hidden rounded py-2 px-4 text-white md:block"
@@ -15,54 +38,287 @@
       <div class="flex items-center justify-between">
         <h1 class="text-4xl font-bold text-gray-700">
           <a
-            class="text-bn-blue font-medium hover:underline dark:text-blue-500"
+            class="text-bn-blue font-medium hover:underline text-blue-600"
             [routerLink]="'/artist/' + release.artist.id"
             >{{ release.artist.name }}</a
           >
           - {{ release.title }}
         </h1>
       </div>
-      <div class="my-4 tracking-wide text-gray-700">
-        <div class="grid grid-cols-2 gap-x-4">
-          <div *ngIf="release?.label" class="font-bold uppercase">Label</div>
-          <div *ngIf="release?.label">{{ release?.label?.name }}</div>
-          <div *ngIf="release?.catalogueNumber" class="font-bold uppercase">
-            Cat. No.
+
+      <ul class="flex flex-wrap border-b border-gray-200 my-6">
+        <li class="mr-2">
+          <a
+            [class.active]="selectedTab === 'details'"
+            (click)="selectedTab = 'details'"
+            aria-current="page"
+            class="tab inline-block text-gray-500 rounded-t-lg py-4 px-4 text-sm font-medium text-center"
+            >Details</a
+          >
+        </li>
+        <li class="mr-2">
+          <a
+            [class.active]="selectedTab === 'sessions'"
+            (click)="selectedTab = 'sessions'"
+            class="tab inline-block text-gray-500 hover:text-gray-600 hover:bg-gray-50 rounded-t-lg py-4 px-4 text-sm font-medium text-center"
+            >Sessions</a
+          >
+        </li>
+      </ul>
+
+      <div class="content" [ngSwitch]="selectedTab">
+        <div *ngSwitchCase="'details'">
+          <div id="details" *ngIf="tracks?.length">
+            <table class="min-w-full">
+              <thead class="bg-slate-100">
+                <tr>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                  >
+                    Track #
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                  >
+                    Title
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                  >
+                    Composer(s)
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                  >
+                    Length
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                  >
+                    Session
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let track of tracks">
+                  <td
+                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                  >
+                    {{ track.number }}
+                  </td>
+                  <td
+                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                  >
+                    {{ track.title }}
+                  </td>
+                  <td
+                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                  >
+                    {{ track.composedBy }}
+                  </td>
+                  <td
+                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                  >
+                    {{ track.length }}
+                  </td>
+                  <td
+                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                  >
+                    {{ track.session | date : "shortDate" }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div *ngIf="release?.catalogueNumber">
-            {{ release?.catalogueNumber }}
+          <div class="my-8" *ngIf="personnel?.length">
+            <table class="min-w-full">
+              <thead class="bg-slate-100">
+                <tr>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                  >
+                    Name
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                  >
+                    Instruments
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                  >
+                    Appears On
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let person of personnel">
+                  <td
+                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                  >
+                    <span
+                      class="personnel--name"
+                      [class.leader]="person.leader"
+                      >{{ person.name }}</span
+                    >
+                  </td>
+                  <td
+                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                  >
+                    {{ person.instruments }}
+                  </td>
+                  <td
+                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                  >
+                    {{ person.appearsOn }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-          <div *ngIf="release?.recorded" class="font-bold uppercase">
-            Recorded
-          </div>
-          <div *ngIf="release?.recorded">{{ release?.recorded }}</div>
-          <div *ngIf="release?.released" class="font-bold uppercase">
-            Released
-          </div>
-          <div *ngIf="release?.released">{{ release?.released }}</div>
         </div>
-      </div>
-      <div class="my-4">
-        <h2 class="text-1xl my-2 font-bold uppercase">Tracks</h2>
-        <div class="tracks gap-x-4">
-          <ng-container *ngFor="let track of release?.tracks">
-            <div>
-              {{ track.number }}
+        <div *ngSwitchCase="'sessions'">
+          <div id="sessions" class="my-4 tracking-wide text-gray-700">
+            <div *ngFor="let session of release?.sessions; index as i">
+              <details class="border-b-2 border-slate-200 open:pb-6" open>
+                <summary class="flex items-center font-semibold my-4">
+                  <span class="text-lg text-slate-500"
+                    >Session {{ i + 1 }}</span
+                  >
+                  <button class="ml-auto">
+                    <svg
+                      class="fill-current opacity-75 w-4 h-4 -mr-1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        d="M12.95 10.707l.707-.707L8 4.343 6.586 5.757 10.828 10l-4.242 4.243L8 15.657l4.95-4.95z"
+                      />
+                    </svg>
+                  </button>
+                </summary>
+                <div class="grid grid-cols-2 gap-x-4">
+                  <span class="font-bold uppercase">Studio</span>
+                  <span
+                    >{{ session.studio.name }},
+                    {{ session.studio.location }}</span
+                  >
+                  <span class="font-bold uppercase">Date</span>
+                  <span>{{ session.date | date : "shortDate" }}</span>
+                </div>
+                <div class="my-8" *ngIf="session?.tracks?.length">
+                  <h2 class="text-1xl my-2 font-bold uppercase">Tracks</h2>
+                  <div
+                    class="relative overflow-x-auto border-2 border-slate-200"
+                  >
+                    <table class="min-w-full">
+                      <thead class="bg-slate-100">
+                        <tr>
+                          <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                          >
+                            Track #
+                          </th>
+                          <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                          >
+                            Title
+                          </th>
+                          <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                          >
+                            Composers
+                          </th>
+                          <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                          >
+                            Length
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <ng-container *ngFor="let track of session?.tracks">
+                          <tr>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                            >
+                              {{ track.number }}
+                            </td>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                            >
+                              {{ track.title }}
+                            </td>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                            >
+                              {{ track.composedBy }}
+                            </td>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                            >
+                              {{ track.length }}
+                            </td>
+                          </tr>
+                        </ng-container>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="my-8" *ngIf="session?.personnel?.length">
+                  <h2 class="text-1xl my-2 font-bold uppercase">Personnel</h2>
+                  <div
+                    class="relative overflow-x-auto border-2 border-slate-200"
+                  >
+                    <table class="min-w-full">
+                      <thead class="bg-slate-100">
+                        <tr>
+                          <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                          >
+                            Name
+                          </th>
+                          <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                          >
+                            Instruments
+                          </th>
+                          <th
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+                          >
+                            Appears On
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <ng-container
+                          *ngFor="let personnel of session?.personnel"
+                        >
+                          <tr>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                            >
+                              {{ personnel.name }}
+                            </td>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                            >
+                              {{ personnel.instruments }}
+                            </td>
+                            <td
+                              class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
+                            >
+                              {{ personnel.appearsOn }}
+                            </td>
+                          </tr>
+                        </ng-container>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </details>
             </div>
-            <div>{{ track.title }} ({{ track.composedBy }})</div>
-            <div>{{ track.length }}</div>
-          </ng-container>
-        </div>
-      </div>
-      <div class="my-4">
-        <h2 class="text-1xl my-2 font-bold uppercase">Personnel</h2>
-        <div class="personnel grid gap-x-4">
-          <ng-container *ngFor="let personnel of release?.personnel">
-            <div>
-              {{ personnel.name }}
-            </div>
-            <div>{{ personnel.instruments }}</div>
-          </ng-container>
+          </div>
         </div>
       </div>
     </div>

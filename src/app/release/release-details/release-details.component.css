@@ -1,3 +1,6 @@
+@tailwind base;
+@tailwind utilities;
+
 .bg-bn-blue {
   --tw-bg-opacity: 1;
   background-color: #024794;
@@ -12,6 +15,19 @@
   grid-template-columns: max-content 1fr;
 }
 
-.text-bn-blue {
-  color: #024794;
+.tab {
+  cursor: pointer;
+}
+
+.tab.active {
+  @apply bg-gray-200 text-blue-600;
+}
+
+.tab:not(.active):hover {
+  @apply text-gray-600 bg-gray-100;
+}
+
+.personnel--name.leader {
+  @apply font-bold;
+  text-transform: uppercase;
 }

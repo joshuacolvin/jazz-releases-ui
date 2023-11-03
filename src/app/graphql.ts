@@ -1,4 +1,4 @@
-import gql from 'graphql-tag';
+import gql from "graphql-tag";
 
 // Label Queries
 export const GET_LABEL_BY_NAME_QUERY = gql`
@@ -70,10 +70,6 @@ export const GET_ALL_RELEASES_FOR_ARTIST = gql`
       label {
         name
       }
-      personnel {
-        name
-        leader
-      }
     }
   }
 `;
@@ -92,10 +88,6 @@ export const GET_RELEASES_FOR_LEADER = gql`
       label {
         name
       }
-      personnel {
-        name
-        leader
-      }
     }
   }
 `;
@@ -113,10 +105,6 @@ export const GET_RELEASES_FOR_SIDEMAN = gql`
       }
       label {
         name
-      }
-      personnel {
-        name
-        leader
       }
     }
   }
@@ -138,10 +126,6 @@ export const GET_RELEASES_BY_LABEL_ID = gql`
       catalogueNumber
       imageUrl
       released
-      personnel {
-        id
-        name
-      }
     }
   }
 `;
@@ -162,10 +146,6 @@ export const GET_RELEASES_BY_LABEL_NAME = gql`
       catalogueNumber
       imageUrl
       released
-      personnel {
-        id
-        name
-      }
     }
   }
 `;
@@ -206,20 +186,28 @@ export const GET_RELEASE_BY_ID = gql`
       catalogueNumber
       imageUrl
       released
-      recorded
-      personnel {
+      sessions {
         id
-        name
-        instruments
-        leader
-        appearsOn
-      }
-      tracks {
-        id
-        title
-        composedBy
-        length
-        number
+        date
+        studio {
+          id
+          name
+          location
+        }
+        personnel {
+          id
+          name
+          instruments
+          leader
+          appearsOn
+        }
+        tracks {
+          id
+          title
+          composedBy
+          length
+          number
+        }
       }
     }
   }

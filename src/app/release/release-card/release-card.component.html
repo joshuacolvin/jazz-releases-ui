@@ -1,62 +1,7 @@
-<div class="overflow-hidden rounded px-6 py-6 shadow-lg">
-  <a
-    class="flex flex-col gap-x-6 md:flex-row"
-    [routerLink]="'/release/' + releaseId"
-  >
-    <img [src]="imageUrl" alt="{{ artist }} - {{ title }}" />
-    <div class="my-2 flex flex-col justify-between md:my-0">
-      <div>
-        <div
-          class="flex flex-col gap-x-2 text-xl font-bold md:flex-row md:items-center"
-        >
-          <span>{{ artist }}</span>
-          <svg
-            width="6"
-            height="6"
-            fill="currentColor"
-            class="mx-4 hidden text-slate-300 md:block"
-            aria-hidden="true"
-          >
-            <circle cx="3" cy="3" r="3" />
-          </svg>
-          <span class="text-lg text-gray-400 md:text-xl md:text-gray-700">{{
-            title
-          }}</span>
-        </div>
-        <p class="flex items-center gap-x-2 text-base text-gray-700">
-          <span>{{ label }}</span>
-          <svg
-            width="4"
-            height="4"
-            fill="currentColor"
-            class="mx-4 text-slate-300"
-            aria-hidden="true"
-          >
-            <circle cx="2" cy="2" r="2" />
-          </svg>
-          <span>{{ catalogueNumber }}</span>
-          <svg
-            width="4"
-            height="4"
-            fill="currentColor"
-            class="mx-4 text-slate-300"
-            aria-hidden="true"
-          >
-            <circle cx="2" cy="2" r="2" />
-          </svg>
-          <span>{{ released }}</span>
-        </p>
-      </div>
-      <div
-        *ngIf="personnel"
-        class="my-2 hidden text-base text-gray-600 md:block"
-      >
-        <ng-container *ngFor="let person of personnel; let last = last">
-          <span [ngClass]="{ 'text-lg font-bold': person.leader }"
-            >{{ person.name }}<span *ngIf="!last">, </span></span
-          >
-        </ng-container>
-      </div>
-    </div>
-  </a>
-</div>
+<a class="flex flex-col gap-y-2" [routerLink]="'/release/' + releaseId">
+  <img [src]="imageUrl" alt="{{ artist }} - {{ title }}" />
+  <div>
+    <h3 class="font-semibold">{{ artist }}</h3>
+    <h4>{{ title }}</h4>
+  </div>
+</a>

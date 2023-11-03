@@ -2,8 +2,20 @@ export interface ArtistInput {
   name: string;
 }
 
+export interface StudioInput {
+  name: string;
+  location: string;
+}
+
 export interface LabelInput {
   name: string;
+}
+
+export interface SessionInput {
+  date: string;
+  studio: StudioInput;
+  personnel: PersonnelInput[];
+  tracks: TrackInput[];
 }
 
 export interface PersonnelInput {
@@ -27,9 +39,7 @@ export interface ReleaseInput {
   catalogueNumber: string;
   label: LabelInput;
   imageUrl?: string;
-  personnel?: PersonnelInput[];
-  recorded?: string;
   released?: string;
   title: string;
-  tracks?: TrackInput[];
+  sessions?: SessionInput[];
 }

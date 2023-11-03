@@ -31,9 +31,21 @@ export interface Release {
   catalogueNumber: string;
   label: Label;
   imageUrl: string;
-  personnel: Personnel[];
-  recorded: string;
+  sessions: Session[];
   released: string;
   title: string;
+}
+
+export interface Session {
+  id: string;
+  date: string;
+  studio: Studio;
+  personnel: Personnel[];
   tracks: Track[];
+}
+
+export interface Studio {
+  id: string;
+  name: string;
+  location: string;
 }

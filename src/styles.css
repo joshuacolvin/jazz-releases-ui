@@ -16,3 +16,23 @@ body {
 button {
   cursor: pointer;
 }
+
+details summary svg {
+  transform: rotate(90deg);
+}
+
+details[open] summary svg {
+  transform: rotate(-90deg);
+}
+
+details[open] summary ~ * {
+  animation: ease-opacity-t-b 0.5s ease;
+}
+
+summary {
+  cursor: pointer;
+}
+
+summary svg {
+  transition: all 0.3s;
+}

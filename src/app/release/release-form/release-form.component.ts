@@ -1,75 +1,51 @@
-import type { PersonnelInput, TrackInput } from './../../types/mutation-types';
+import type { PersonnelInput, TrackInput } from "./../../types/mutation-types";
 import {
   CREATE_RELEASE,
   DELETE_PERSONNEL_BY_ID,
   DELETE_TRACK_BY_ID,
   UPDATE_RELEASE,
-} from './../../graphql';
-import { Apollo } from 'apollo-angular';
+} from "./../../graphql";
+import { Apollo } from "apollo-angular";
 import type {
   AfterViewInit,
   ElementRef,
   OnInit,
   QueryList,
-} from '@angular/core';
-import { Input } from '@angular/core';
-import { inject, ViewChildren } from '@angular/core';
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import type { FormArray, FormGroup, FormControl } from '@angular/forms';
-import { NonNullableFormBuilder } from '@angular/forms';
-import { Validators } from '@angular/forms';
-import { ReactiveFormsModule } from '@angular/forms';
-import type { ReleaseInput } from 'src/app/types/mutation-types';
-import { Router, ActivatedRoute } from '@angular/router';
-import type { Personnel, Release, Track } from 'src/app/types/query-types';
-
-interface ArtistFormGroup {
-  name: FormControl<string>;
-}
-
-interface LabelFormGroup {
-  name: FormControl<string>;
-}
-
-interface PersonnelFormGroup {
-  id: FormControl<string | undefined>;
-  name: FormControl<string>;
-  instruments: FormControl<string>;
-  leader: FormControl<boolean>;
-  appearsOn: FormControl<string>;
-}
-
-interface TrackFormGroup {
-  id: FormControl<string>;
-  title: FormControl<string>;
-  composedBy: FormControl<string>;
-  length: FormControl<string>;
-  number: FormControl<string>;
-}
-
-interface CreateReleaseForm {
-  artist: FormGroup<ArtistFormGroup>;
-  catalogueNumber: FormControl<string>;
-  imageUrl: FormControl<string>;
-  label: FormGroup<LabelFormGroup>;
-  recorded: FormControl<string>;
-  released: FormControl<string>;
-  title: FormControl<string>;
-  personnel: FormArray<FormGroup<PersonnelFormGroup>>;
-  tracks: FormArray<FormGroup<TrackFormGroup>>;
-}
+} from "@angular/core";
+import { Input } from "@angular/core";
+import { inject, ViewChildren } from "@angular/core";
+import { Component } from "@angular/core";
+import { CommonModule, DatePipe } from "@angular/common";
+import type { FormArray, FormGroup } from "@angular/forms";
+import { NonNullableFormBuilder } from "@angular/forms";
+import { Validators } from "@angular/forms";
+import { ReactiveFormsModule } from "@angular/forms";
+import type { ReleaseInput } from "src/app/types/mutation-types";
+import { Router, ActivatedRoute } from "@angular/router";
+import type {
+  Personnel,
+  Release,
+  Session,
+  Track,
+} from "src/app/types/query-types";
+import {
+  CreateReleaseForm,
+  PersonnelFormGroup,
+  SessionFormGroup,
+  TrackFormGroup,
+} from "../types/release.types";
 
 @Component({
-  selector: 'app-release-form',
+  selector: "app-release-form",
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  templateUrl: './release-form.component.html',
-  styleUrls: ['./release-form.component.css'],
+  templateUrl: "./release-form.component.html",
+  styleUrls: ["./release-form.component.css"],
 })
 export class ReleaseFormComponent implements AfterViewInit, OnInit {
-  @ViewChildren('trackTitle') trackTitle!: QueryList<ElementRef>;
-  @ViewChildren('personnelName') personnelName!: QueryList<ElementRef>;
+  @ViewChildren("trackTitle") trackTitle!: QueryList<ElementRef>;
+  @ViewChildren("personnelName") personnelName!: QueryList<ElementRef>;
+  @ViewChildren("sessionDate") sessionDate!: QueryList<ElementRef>;
 
   @Input() release?: Release;
 
@@ -78,35 +54,38 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
   private router = inject(Router);
   route = inject(ActivatedRoute);
 
-  public imagePreview = '';
+  public imagePreview = "";
   public labels: string[] = [
-    'Blue Note Records',
-    'Prestige',
-    'Contemporary',
-    'Columbia',
+    "Blue Note Records",
+    "Prestige",
+    "Contemporary",
+    "Columbia",
   ];
+  public openSession: number = 0;
   public form: FormGroup<CreateReleaseForm> = this.fb.group({
     artist: this.fb.group({
-      name: ['', Validators.required],
+      name: ["", Validators.required],
     }),
-    catalogueNumber: ['', Validators.required],
-    imageUrl: [''],
+    catalogueNumber: ["", Validators.required],
+    imageUrl: [""],
     label: this.fb.group({
-      name: ['', Validators.required],
+      name: ["", Validators.required],
     }),
-    recorded: [''],
-    released: [''],
-    title: ['', Validators.required],
-    personnel: this.fb.array([this.createPersonnelGroup()]),
-    tracks: this.fb.array([this.createTrackGroup()]),
+    released: [""],
+    title: ["", Validators.required],
+    sessions: this.fb.array([this.createSessionGroup()]),
   });
 
-  get personnel() {
-    return this.form.get('personnel') as FormArray;
+  get sessions() {
+    return this.form.get("sessions") as FormArray;
   }
 
-  get tracks() {
-    return this.form.get('tracks') as FormArray;
+  personnel(index: number): FormArray {
+    return this.sessions?.at(index)?.get("personnel") as unknown as FormArray;
+  }
+
+  tracks(index: number) {
+    return this.sessions?.at(index)?.get("tracks") as unknown as FormArray;
   }
 
   ngAfterViewInit(): void {
@@ -122,7 +101,7 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
       lastTitle?.scrollIntoView();
     });
 
-    this.form.get('imageUrl')?.valueChanges.subscribe((url: string) => {
+    this.form.get("imageUrl")?.valueChanges.subscribe((url: string) => {
       this.imagePreview = url;
     });
   }
@@ -139,11 +118,9 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
       catalogueNumber,
       imageUrl,
       label,
-      personnel,
-      recorded,
+      sessions,
       released,
       title,
-      tracks,
     } = release;
 
     this.form.patchValue({
@@ -151,17 +128,12 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
       label: { name: label?.name },
       catalogueNumber,
       imageUrl,
-      recorded,
       released,
       title,
     });
 
-    if (personnel?.length) {
-      this.patchPersonnel(personnel);
-    }
-
-    if (tracks?.length) {
-      this.patchTracks(tracks);
+    if (sessions?.length) {
+      this.patchSessions(sessions);
     }
 
     if (imageUrl) {
@@ -169,19 +141,29 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
     }
   }
 
-  patchPersonnel(personnel: Personnel[]) {
-    this.personnel.clear();
+  patchSessions(sessions: Session[]) {
+    this.sessions.clear();
 
-    personnel.forEach((personnel: Personnel) => {
-      this.personnel.push(this.createPersonnelGroup(personnel));
+    sessions.forEach((session: Session, sessionIndex: number) => {
+      this.sessions.push(this.createSessionGroup(session));
+      this.patchPersonnel(session, sessionIndex);
+      this.patchTrack(session, sessionIndex);
     });
   }
 
-  patchTracks(tracks: Track[]) {
-    this.tracks.clear();
+  patchPersonnel(session: Session, sessionIndex: number) {
+    this.personnel(sessionIndex).clear();
 
-    tracks.forEach((track: Track) => {
-      this.tracks.push(this.createTrackGroup(track));
+    session.personnel?.forEach((personnel: Personnel) => {
+      this.personnel(sessionIndex).push(this.createPersonnelGroup(personnel));
+    });
+  }
+
+  patchTrack(session: Session, sessionIndex: number) {
+    this.tracks(sessionIndex).clear();
+
+    session.tracks?.forEach((track: Track) => {
+      this.tracks(sessionIndex).push(this.createTrackGroup(track));
     });
   }
 
@@ -193,9 +175,15 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
 
     const release: ReleaseInput = {
       ...this.form.getRawValue(),
-      personnel: this.normalizePersonnel(this.form.value.personnel),
-      tracks: this.normalizeTracks(this.form.value.tracks),
+      sessions: this.form.getRawValue().sessions.map((s: any) => ({
+        ...s,
+        date: new Date(s.date)?.getTime()?.toString(),
+        personnel: this.normalizePersonnel(s.personnel),
+        tracks: this.normalizeTracks(s.tracks),
+      })),
     };
+
+    console.log(release);
 
     if (this.release) {
       this.updateRelease(release);
@@ -204,8 +192,9 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
     }
   }
 
-  public deletePersonnel(index: number) {
-    const { id } = this.personnel.controls.at(index)?.value;
+  public deletePersonnel(sessionIndex: number, personnelIndex: number) {
+    const { id } =
+      this.personnel(sessionIndex).controls.at(personnelIndex)?.value;
 
     this.apollo
       .mutate({
@@ -214,17 +203,17 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
       })
       .subscribe({
         next: ({ data }: any) => {
-          console.log('Deleted!', data);
-          this.personnel.removeAt(index);
+          console.log("Deleted!", data);
+          this.personnel(sessionIndex).removeAt(personnelIndex);
         },
         error: (error) => {
-          console.log('there was an error sending the query', error);
+          console.log("there was an error sending the query", error);
         },
       });
   }
 
-  public deleteTrack(index: number) {
-    const { id } = this.tracks.controls.at(index)?.value;
+  public deleteTrack(sessionIndex: number, trackIndex: number) {
+    const { id } = this.tracks(sessionIndex).at(trackIndex)?.value;
 
     this.apollo
       .mutate({
@@ -233,21 +222,26 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
       })
       .subscribe({
         next: ({ data }: any) => {
-          console.log('Deleted!', data);
-          this.tracks.removeAt(index);
+          console.log("Deleted!", data);
+          this.tracks(sessionIndex).removeAt(trackIndex);
         },
         error: (error) => {
-          console.log('there was an error sending the query', error);
+          console.log("there was an error sending the query", error);
         },
       });
   }
 
-  public addPersonnel() {
-    this.personnel.push(this.createPersonnelGroup());
+  public addPersonnel(sessionIndex: number) {
+    this.personnel(sessionIndex).push(this.createPersonnelGroup());
   }
 
-  public addTrack() {
-    this.tracks.push(this.createTrackGroup());
+  public addSession() {
+    this.sessions.push(this.createSessionGroup());
+    this.openSession = this.sessions.length - 1;
+  }
+
+  public addTrack(sessionIndex: number) {
+    this.tracks(sessionIndex).push(this.createTrackGroup());
   }
 
   private createPersonnelGroup(values?: {
@@ -258,11 +252,34 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
     appearsOn: string[];
   }): FormGroup<PersonnelFormGroup> {
     return this.fb.group({
-      name: [values?.name ?? ''],
-      instruments: [values?.instruments?.join(',') ?? ''],
+      name: [values?.name ?? ""],
+      instruments: [values?.instruments?.join(",") ?? ""],
       leader: [values?.leader ?? false],
       id: [values?.id ?? undefined],
-      appearsOn: [values?.appearsOn?.join(',') ?? ''],
+      appearsOn: [values?.appearsOn?.join(",") ?? ""],
+    });
+  }
+
+  private createSessionGroup(values?: {
+    date: string;
+    studio: { name: string; location: string };
+    id: string;
+    personnel?: Personnel[];
+    tracks?: Track[];
+  }): FormGroup<SessionFormGroup> {
+    const datePipe = new DatePipe("en-US");
+    console.log(values);
+    return this.fb.group({
+      date: [
+        values?.date ? datePipe.transform(values.date, "shortDate") ?? "" : "",
+      ],
+      id: [values?.id ?? undefined],
+      studio: this.fb.group({
+        name: [values?.studio?.name ?? ""],
+        location: [values?.studio?.location ?? ""],
+      }),
+      personnel: this.fb.array([this.createPersonnelGroup()]),
+      tracks: this.fb.array([this.createTrackGroup()]),
     });
   }
 
@@ -274,11 +291,11 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
     id: string;
   }): FormGroup<TrackFormGroup> {
     return this.fb.group({
-      title: [values?.title ?? ''],
-      composedBy: [values?.composedBy?.join(', ') ?? ''],
-      length: [values?.['length'] ?? ''],
-      number: [values?.['number'] ?? ''],
-      id: [values?.id ?? ''],
+      title: [values?.title ?? ""],
+      composedBy: [values?.composedBy?.join(", ") ?? ""],
+      length: [values?.["length"] ?? ""],
+      number: [values?.["number"] ?? ""],
+      id: [values?.id ?? ""],
     });
   }
 
@@ -292,10 +309,10 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
         next: ({ data }: any) => {
           const { id } = data.createRelease;
 
-          this.router.navigate(['/release', id]);
+          this.router.navigate(["/release", id]);
         },
         error: (error) => {
-          console.log('there was an error sending the query', error);
+          console.log("there was an error sending the query", error);
         },
       });
   }
@@ -310,10 +327,10 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
         next: ({ data }: any) => {
           const { id } = data.updateRelease;
 
-          this.router.navigate(['/release', id]);
+          this.router.navigate(["/release", id]);
         },
         error: (error) => {
-          console.log('there was an error sending the query', error);
+          console.log("there was an error sending the query", error);
         },
       });
   }
@@ -323,7 +340,7 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
       ?.map((p: any) => ({
         ...p,
         instruments: this.toArray(p.instruments),
-        id: p?.id ? p.id : '',
+        id: p?.id ? p.id : "",
       }))
       .filter((p: any) => p.name)
       .map((p: any) => {
@@ -337,7 +354,7 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
       ?.map((t: any) => ({
         ...t,
         composedBy: this.toArray(t.composedBy),
-        id: t?.id ? t.id : '',
+        id: t?.id ? t.id : "",
       }))
       .filter((t: any) => t.title)
       .map((t: any) => {
@@ -347,6 +364,6 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
   }
 
   private toArray(val: string): string[] {
-    return val.split(',').map((v) => v.trim());
+    return val.split(",").map((v) => v.trim());
   }
 }
