@@ -4,7 +4,7 @@ import type { OnDestroy, OnInit } from "@angular/core";
 import { Component, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import type { Observable } from "rxjs";
-import { map, takeUntil, Subject } from "rxjs";
+import { map, takeUntil, Subject, merge } from "rxjs";
 import { GET_RELEASE_BY_ID } from "src/app/graphql";
 import type { Personnel, Release, Track } from "src/app/types/query-types";
 
@@ -21,7 +21,7 @@ export class ReleaseDetailsComponent implements OnInit, OnDestroy {
   apollo = inject(Apollo);
   route = inject(ActivatedRoute);
   router = inject(Router);
-  release$!: Observable<Release>;
+  release!: Release;
   destroy$ = new Subject<void>();
   releaseId = this.route.snapshot.paramMap.get("id");
   tracks: TrackWithSession[] = [];
@@ -35,7 +35,7 @@ export class ReleaseDetailsComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     if (this.releaseId) {
-      this.release$ = this.apollo
+      this.apollo
         .watchQuery<any>({
           query: GET_RELEASE_BY_ID,
           variables: {
@@ -44,31 +44,32 @@ export class ReleaseDetailsComponent implements OnInit, OnDestroy {
         })
         .valueChanges.pipe(
           takeUntil(this.destroy$),
-          map((result) => this.sortReleaseData(result.data.getReleaseById))
-        );
-
-      this.release$.subscribe((release) => {
-        this.tracks = this.getTracks(release);
-        this.personnel = this.getPersonnel(release);
-        console.log("**** ", this.personnel);
-      });
+          map((result) => result.data.getReleaseById)
+        )
+        .subscribe((release) => {
+          this.release = release;
+          this.tracks = this.getTracks(release);
+          this.personnel = this.getPersonnel(release);
+        });
     }
   }
 
   getPersonnel(release: Release): Personnel[] {
-    const personnel: Personnel[] = [];
-    release?.sessions?.forEach((session) => {
-      session?.personnel?.forEach((person) => {
-        personnel.push(person);
+    const result: Personnel[] = [];
+    release?.sessions?.map((session) => {
+      session?.personnel?.map((person) => {
+        result.push(person);
       });
     });
-    return this.mergePersonnel(personnel);
+    return this.mergePersonnel(result);
   }
 
   mergePersonnel(personnel: Personnel[]): Personnel[] {
     const mergedPersonnel: Personnel[] = [];
-    personnel.forEach((person) => {
-      const index = mergedPersonnel.findIndex((p) => p.name === person.name);
+    personnel.map((person) => {
+      const index = mergedPersonnel.findIndex(
+        (p) => p.artist.name === person.artist.name
+      );
       if (index === -1) {
         mergedPersonnel.push(person);
       } else {
@@ -76,7 +77,17 @@ export class ReleaseDetailsComponent implements OnInit, OnDestroy {
           ...mergedPersonnel[index].instruments,
           ...person.instruments,
         ];
-        mergedPersonnel[index].instruments = [...new Set(instruments)];
+        const appearsOn = [
+          ...mergedPersonnel[index].appearsOn?.[0]
+            ?.split(",")
+            .map((a) => a.trim()),
+          ...person.appearsOn?.[0]?.split(",").map((a) => a.trim()),
+        ];
+        mergedPersonnel[index] = {
+          ...mergedPersonnel[index],
+          instruments: [...new Set(instruments)],
+          appearsOn: [...new Set(appearsOn)].sort((a, b) => a.localeCompare(b)),
+        };
       }
     });
     return mergedPersonnel.sort((a: any, b: any) => b.leader - a.leader);

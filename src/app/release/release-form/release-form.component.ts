@@ -3,25 +3,28 @@ import {
   CREATE_RELEASE,
   DELETE_PERSONNEL_BY_ID,
   DELETE_TRACK_BY_ID,
+  GET_ALL_ARTISTS,
+  GET_ALL_LABELS,
   UPDATE_RELEASE,
 } from "./../../graphql";
 import { Apollo } from "apollo-angular";
 import type {
   AfterViewInit,
   ElementRef,
+  OnDestroy,
   OnInit,
   QueryList,
 } from "@angular/core";
-import { Input } from "@angular/core";
+import { ChangeDetectorRef, Input } from "@angular/core";
 import { inject, ViewChildren } from "@angular/core";
 import { Component } from "@angular/core";
 import { CommonModule, DatePipe } from "@angular/common";
-import type { FormArray, FormGroup } from "@angular/forms";
+import { FormArray, FormGroup } from "@angular/forms";
 import { NonNullableFormBuilder } from "@angular/forms";
 import { Validators } from "@angular/forms";
 import { ReactiveFormsModule } from "@angular/forms";
 import type { ReleaseInput } from "src/app/types/mutation-types";
-import { Router, ActivatedRoute } from "@angular/router";
+import { Router } from "@angular/router";
 import type {
   Personnel,
   Release,
@@ -34,6 +37,12 @@ import {
   SessionFormGroup,
   TrackFormGroup,
 } from "../types/release.types";
+import { Subject, debounceTime, delay, map, takeUntil } from "rxjs";
+
+type DisplayArtistOptions = {
+  sessionIndex: number | undefined;
+  personnelIndex: number | undefined;
+};
 
 @Component({
   selector: "app-release-form",
@@ -42,7 +51,7 @@ import {
   templateUrl: "./release-form.component.html",
   styleUrls: ["./release-form.component.css"],
 })
-export class ReleaseFormComponent implements AfterViewInit, OnInit {
+export class ReleaseFormComponent implements AfterViewInit, OnInit, OnDestroy {
   @ViewChildren("trackTitle") trackTitle!: QueryList<ElementRef>;
   @ViewChildren("personnelName") personnelName!: QueryList<ElementRef>;
   @ViewChildren("sessionDate") sessionDate!: QueryList<ElementRef>;
@@ -52,19 +61,44 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
   private apollo = inject(Apollo);
   private fb = inject(NonNullableFormBuilder);
   private router = inject(Router);
-  route = inject(ActivatedRoute);
+  private cdr = inject(ChangeDetectorRef);
 
+  private destroy$: Subject<void> = new Subject<void>();
+  public displayArtistOptions: DisplayArtistOptions = {
+    sessionIndex: undefined,
+    personnelIndex: undefined,
+  };
   public imagePreview = "";
-  public labels: string[] = [
-    "Blue Note Records",
-    "Prestige",
-    "Contemporary",
-    "Columbia",
-  ];
   public openSession: number = 0;
+  public artists$ = this.apollo
+    .watchQuery<any>({
+      query: GET_ALL_ARTISTS,
+    })
+    .valueChanges.pipe(
+      map((result) => result.data.getAllArtists),
+      takeUntil(this.destroy$)
+    );
+  public labels$ = this.apollo
+    .watchQuery<any>({
+      query: GET_ALL_LABELS,
+    })
+    .valueChanges.pipe(
+      map((result) => result.data.getAllLabels),
+      takeUntil(this.destroy$)
+    );
+
   public form: FormGroup<CreateReleaseForm> = this.fb.group({
     artist: this.fb.group({
       name: ["", Validators.required],
+    }),
+    photographer: this.fb.group({
+      name: [""],
+    }),
+    producer: this.fb.group({
+      name: [""],
+    }),
+    designer: this.fb.group({
+      name: [""],
     }),
     catalogueNumber: ["", Validators.required],
     imageUrl: [""],
@@ -89,21 +123,14 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.personnelName.changes.subscribe((controls) => {
-      const lastName: HTMLInputElement = controls?.last?.nativeElement;
-      lastName?.focus();
-      lastName?.scrollIntoView();
-    });
-
-    this.trackTitle.changes.subscribe((controls) => {
-      const lastTitle: HTMLInputElement = controls?.last?.nativeElement;
-      lastTitle?.focus();
-      lastTitle?.scrollIntoView();
-    });
-
     this.form.get("imageUrl")?.valueChanges.subscribe((url: string) => {
       this.imagePreview = url;
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngOnInit() {
@@ -118,6 +145,9 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
       catalogueNumber,
       imageUrl,
       label,
+      producer,
+      designer,
+      photographer,
       sessions,
       released,
       title,
@@ -125,6 +155,9 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
 
     this.form.patchValue({
       artist: { name: artist?.name },
+      photographer: { name: photographer?.name },
+      producer: { name: producer?.name },
+      designer: { name: designer?.name },
       label: { name: label?.name },
       catalogueNumber,
       imageUrl,
@@ -169,7 +202,6 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
 
   onSubmit() {
     if (this.form.invalid) {
-      console.log(`Form is invalid`);
       return;
     }
 
@@ -182,8 +214,6 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
         tracks: this.normalizeTracks(s.tracks),
       })),
     };
-
-    console.log(release);
 
     if (this.release) {
       this.updateRelease(release);
@@ -203,7 +233,6 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
       })
       .subscribe({
         next: ({ data }: any) => {
-          console.log("Deleted!", data);
           this.personnel(sessionIndex).removeAt(personnelIndex);
         },
         error: (error) => {
@@ -222,7 +251,6 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
       })
       .subscribe({
         next: ({ data }: any) => {
-          console.log("Deleted!", data);
           this.tracks(sessionIndex).removeAt(trackIndex);
         },
         error: (error) => {
@@ -244,15 +272,52 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
     this.tracks(sessionIndex).push(this.createTrackGroup());
   }
 
+  public onPersonnelNameFocus(
+    event: any,
+    sessionIndex?: number,
+    personnelIndex?: number
+  ) {
+    event.preventDefault();
+    this.displayArtistOptions = {
+      sessionIndex,
+      personnelIndex,
+    };
+    this.cdr.detectChanges();
+  }
+
+  public onPersonnelNameBlur(event: any): void {
+    setTimeout(() => {
+      if (this.displayArtistOptions.sessionIndex !== undefined) {
+        this.onPersonnelNameFocus(event);
+      }
+    }, 300);
+  }
+
+  public onPersonnelSelect(
+    event: any,
+    name: string,
+    sessionIndex: number,
+    personnelIndex: number
+  ) {
+    event.preventDefault();
+    this.personnel(sessionIndex)?.at(personnelIndex)?.patchValue({
+      artist: { name },
+    });
+
+    this.onPersonnelNameFocus(event);
+  }
+
   private createPersonnelGroup(values?: {
-    name: string;
+    artist: { name: string };
     instruments: string[];
     leader: boolean;
     id: string;
     appearsOn: string[];
   }): FormGroup<PersonnelFormGroup> {
     return this.fb.group({
-      name: [values?.name ?? ""],
+      artist: this.fb.group({
+        name: [values?.artist?.name ?? ""],
+      }),
       instruments: [values?.instruments?.join(",") ?? ""],
       leader: [values?.leader ?? false],
       id: [values?.id ?? undefined],
@@ -262,18 +327,21 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
 
   private createSessionGroup(values?: {
     date: string;
+    engineer: { name: string };
     studio: { name: string; location: string };
     id: string;
     personnel?: Personnel[];
     tracks?: Track[];
   }): FormGroup<SessionFormGroup> {
     const datePipe = new DatePipe("en-US");
-    console.log(values);
     return this.fb.group({
       date: [
         values?.date ? datePipe.transform(values.date, "shortDate") ?? "" : "",
       ],
       id: [values?.id ?? undefined],
+      engineer: this.fb.group({
+        name: [values?.engineer?.name ?? ""],
+      }),
       studio: this.fb.group({
         name: [values?.studio?.name ?? ""],
         location: [values?.studio?.location ?? ""],
@@ -342,7 +410,7 @@ export class ReleaseFormComponent implements AfterViewInit, OnInit {
         instruments: this.toArray(p.instruments),
         id: p?.id ? p.id : "",
       }))
-      .filter((p: any) => p.name)
+      .filter((p: any) => p.artist.name)
       .map((p: any) => {
         if (!p?.id) delete p.id;
         return p;

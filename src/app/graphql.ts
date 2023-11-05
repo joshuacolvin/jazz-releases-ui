@@ -179,6 +179,18 @@ export const GET_RELEASE_BY_ID = gql`
         id
         name
       }
+      producer {
+        id
+        name
+      }
+      designer {
+        id
+        name
+      }
+      photographer {
+        id
+        name
+      }
       label {
         id
         name
@@ -189,6 +201,10 @@ export const GET_RELEASE_BY_ID = gql`
       sessions {
         id
         date
+        engineer {
+          id
+          name
+        }
         studio {
           id
           name
@@ -196,7 +212,10 @@ export const GET_RELEASE_BY_ID = gql`
         }
         personnel {
           id
-          name
+          artist {
+            id
+            name
+          }
           instruments
           leader
           appearsOn
@@ -229,6 +248,15 @@ export const GET_RELEASE_BY_TITLE = gql`
       catalogueNumber
       imageUrl
       released
+    }
+  }
+`;
+
+export const GET_ALL_ARTISTS = gql`
+  query GetAllArtists {
+    getAllArtists {
+      id
+      name
     }
   }
 `;

@@ -3,6 +3,26 @@ export interface Artist {
   name: string;
 }
 
+export interface Designer {
+  id: string;
+  name: string;
+}
+
+export interface Engineer {
+  id: string;
+  name: string;
+}
+
+export interface Photographer {
+  id: string;
+  name: string;
+}
+
+export interface Producer {
+  id: string;
+  name: string;
+}
+
 export interface Label {
   id: string;
   name: string;
@@ -11,7 +31,7 @@ export interface Label {
 
 export interface Personnel {
   id: string;
-  name: string;
+  artist: Artist;
   instruments: string[];
   leader: boolean;
   appearsOn: string[];
@@ -28,6 +48,9 @@ export interface Track {
 export interface Release {
   id: string;
   artist: Artist;
+  photographer: Photographer;
+  producer: Producer;
+  designer: Designer;
   catalogueNumber: string;
   label: Label;
   imageUrl: string;
@@ -39,6 +62,7 @@ export interface Release {
 export interface Session {
   id: string;
   date: string;
+  engineer: Engineer;
   studio: Studio;
   personnel: Personnel[];
   tracks: Track[];

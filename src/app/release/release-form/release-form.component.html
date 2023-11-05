@@ -46,8 +46,8 @@
           required
         >
           <option [ngValue]="null" disabled>Select Label</option>
-          <option *ngFor="let label of labels" [ngValue]="label">
-            {{ label }}
+          <option *ngFor="let label of labels$ | async" [ngValue]="label?.name">
+            {{ label.name }}
           </option>
         </select>
         <div
@@ -96,7 +96,50 @@
         placeholder="YYYY"
       />
     </div>
-    <div class="w-1/2"></div>
+    <div class="w-1/2" formGroupName="producer">
+      <label
+        class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+        for="name"
+      >
+        Producer
+      </label>
+      <input
+        class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+        id="name"
+        type="text"
+        formControlName="name"
+      />
+    </div>
+  </div>
+  <div class="flex gap-4">
+    <div class="w-1/2" formGroupName="designer">
+      <label
+        class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+        for="name"
+      >
+        Designer
+      </label>
+      <input
+        class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+        id="name"
+        type="text"
+        formControlName="name"
+      />
+    </div>
+    <div class="w-1/2" formGroupName="photographer">
+      <label
+        class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+        for="name"
+      >
+        Photographer
+      </label>
+      <input
+        class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+        id="name"
+        type="text"
+        formControlName="name"
+      />
+    </div>
   </div>
   <div class="flex gap-4">
     <div class="w-full">
@@ -160,6 +203,18 @@
                 formControlName="date"
               />
             </div>
+            <div class="w-1/2" formGroupName="engineer">
+              <label
+                class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
+                for="name"
+                >Engineer
+              </label>
+              <input
+                #engineer
+                class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                formControlName="name"
+              />
+            </div>
           </div>
           <div class="flex gap-4" formGroupName="studio">
             <div class="w-1/2">
@@ -199,17 +254,51 @@
             >
               <div [formGroupName]="personnelIndex">
                 <div class="flex gap-4">
-                  <div class="w-1/2">
+                  <div class="w-1/2" formGroupName="artist">
                     <label
                       class="mb-2 block text-xs font-bold uppercase tracking-wide text-gray-700"
                       for="name"
                       >name
                     </label>
-                    <input
-                      #personnelName
-                      class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
-                      formControlName="name"
-                    />
+                    <div class="relative">
+                      <input
+                        #personnelName
+                        class="mb-3 block w-full appearance-none rounded border border-gray-200 bg-gray-200 py-3 px-4 leading-tight text-gray-700 focus:border-gray-500 focus:bg-white focus:outline-none"
+                        formControlName="name"
+                        (focus)="
+                          onPersonnelNameFocus(
+                            $event,
+                            sessionIndex,
+                            personnelIndex
+                          )
+                        "
+                        (blur)="onPersonnelNameBlur($event)"
+                      />
+                      <ul
+                        *ngIf="
+                          displayArtistOptions?.sessionIndex === sessionIndex &&
+                          displayArtistOptions?.personnelIndex ===
+                            personnelIndex
+                        "
+                        class="combobox absolute bg-white border border-gray-200 rounded w-full z-10 shadow-md overflow-hidden overflow-y-scroll max-h-64"
+                        role="listbox"
+                      >
+                        <li
+                          *ngFor="let artist of artists$ | async"
+                          class="p-4 border-b-slate-100 hover:bg-slate-100 cursor-pointer"
+                          (click)="
+                            onPersonnelSelect(
+                              $event,
+                              artist.name,
+                              sessionIndex,
+                              personnelIndex
+                            )
+                          "
+                        >
+                          {{ artist.name }}
+                        </li>
+                      </ul>
+                    </div>
                   </div>
                   <div class="w-1/2">
                     <label
@@ -239,25 +328,30 @@
                       placeholder="A1, B3"
                     />
                   </div>
-                  <div class="w-1/4">
-                    <label
-                      class="block text-xs font-bold uppercase tracking-wide text-gray-700"
-                      for="leader"
-                      >Leader?
-                    </label>
-                    <input
-                      class="my-2 rounded"
-                      formControlName="leader"
-                      type="checkbox"
-                    />
+                  <div class="w-1/2 flex justify-between">
+                    <div class="w-1/4">
+                      <label
+                        class="block text-xs font-bold uppercase tracking-wide text-gray-700"
+                        for="leader"
+                        >Leader?
+                      </label>
+                      <input
+                        class="my-2 rounded"
+                        formControlName="leader"
+                        type="checkbox"
+                      />
+                    </div>
+                    <div class="w-1/4 self-center">
+                      <button
+                        *ngIf="release"
+                        type="button"
+                        class="hover:bg-red-400 group flex items-center rounded-md bg-red-500 text-white text-sm font-medium p-2 shadow-sm"
+                        (click)="deletePersonnel(sessionIndex, personnelIndex)"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                  <button
-                    *ngIf="release"
-                    type="button"
-                    (click)="deletePersonnel(sessionIndex, personnelIndex)"
-                  >
-                    Delete
-                  </button>
                 </div>
               </div>
             </div>
@@ -339,6 +433,7 @@
                   <button
                     *ngIf="release"
                     type="button"
+                    class="hover:bg-red-400 group flex items-center rounded-md bg-red-500 text-white text-sm font-medium p-2 shadow-sm"
                     (click)="deleteTrack(sessionIndex, trackIndex)"
                   >
                     Delete

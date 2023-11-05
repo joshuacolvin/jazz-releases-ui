@@ -13,6 +13,7 @@ export interface LabelInput {
 
 export interface SessionInput {
   date: string;
+  engineer: EngineerInput;
   studio: StudioInput;
   personnel: PersonnelInput[];
   tracks: TrackInput[];
@@ -34,8 +35,27 @@ export interface TrackInput {
   number?: string;
 }
 
+export interface EngineerInput {
+  name: string | null | undefined;
+}
+
+export interface PhotographerInput {
+  name: string | null | undefined;
+}
+
+export interface ProducerInput {
+  name: string | null | undefined;
+}
+
+export interface DesignerInput {
+  name: string | null | undefined;
+}
+
 export interface ReleaseInput {
   artist: ArtistInput;
+  photographer: PhotographerInput;
+  producer: ProducerInput;
+  designer: DesignerInput;
   catalogueNumber: string;
   label: LabelInput;
   imageUrl?: string;

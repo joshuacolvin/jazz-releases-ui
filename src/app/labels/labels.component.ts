@@ -1,21 +1,21 @@
-import { LabelCardComponent } from './label-card/label-card.component';
-import { RouterModule } from '@angular/router';
-import { Apollo } from 'apollo-angular';
-import { GET_ALL_LABELS } from './../graphql';
-import type { OnDestroy, OnInit } from '@angular/core';
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import type { Observable } from 'rxjs';
-import { map } from 'rxjs';
-import { Subject, takeUntil } from 'rxjs';
-import type { Label } from '../types/query-types';
+import { LabelCardComponent } from "./label-card/label-card.component";
+import { RouterModule } from "@angular/router";
+import { Apollo } from "apollo-angular";
+import { GET_ALL_LABELS } from "./../graphql";
+import type { OnDestroy, OnInit } from "@angular/core";
+import { Component, inject } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import type { Observable } from "rxjs";
+import { map } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
+import type { Label } from "../types/query-types";
 
 @Component({
-  selector: 'app-labels',
+  selector: "app-labels",
   standalone: true,
   imports: [CommonModule, RouterModule, LabelCardComponent],
-  templateUrl: './labels.component.html',
-  styleUrls: ['./labels.component.css'],
+  templateUrl: "./labels.component.html",
+  styleUrls: ["./labels.component.css"],
 })
 export class LabelsComponent implements OnInit, OnDestroy {
   private apollo = inject(Apollo);

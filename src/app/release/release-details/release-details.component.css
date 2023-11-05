@@ -26,8 +26,3 @@
 .tab:not(.active):hover {
   @apply text-gray-600 bg-gray-100;
 }
-
-.personnel--name.leader {
-  @apply font-bold;
-  text-transform: uppercase;
-}

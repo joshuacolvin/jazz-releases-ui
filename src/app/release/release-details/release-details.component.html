@@ -1,28 +1,46 @@
-<div *ngIf="release$ | async; let release" class="my-12">
+<div *ngIf="release" class="my-12">
   <div class="flex w-full flex-col gap-8 md:flex-row">
     <div class="flex w-full flex-col md:w-1/4">
       <img [src]="release.imageUrl" [alt]="release.title" />
       <div class="my-4 tracking-wide text-gray-700">
         <div class="grid grid-cols-2 gap-x-4">
-          <div *ngIf="release?.label" class="font-bold uppercase">Label</div>
-          <div *ngIf="release?.label">
+          <div class="font-bold uppercase">Label</div>
+          <div>
             <a
-              class="text-blue-600"
+              class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
               [routerLink]="'/label/' + release.label.id"
             >
-              {{ release?.label?.name }}
+              {{ release.label.name }}
             </a>
           </div>
           <div *ngIf="release?.catalogueNumber" class="font-bold uppercase">
             Cat. No.
           </div>
           <div *ngIf="release?.catalogueNumber">
-            {{ release?.catalogueNumber }}
+            {{ release.catalogueNumber }}
           </div>
           <div *ngIf="release?.released" class="font-bold uppercase">
             Released
           </div>
-          <div *ngIf="release?.released">{{ release?.released }}</div>
+          <div *ngIf="release?.released">{{ release.released }}</div>
+          <!-- PRODUCER -->
+          <div *ngIf="release?.producer?.name" class="font-bold uppercase">
+            Producer
+          </div>
+          <div *ngIf="release?.producer?.name">{{ release.producer.name }}</div>
+          <!-- ENGINEER -->
+          <!-- DESIGNER -->
+          <div *ngIf="release?.designer?.name" class="font-bold uppercase">
+            Designer
+          </div>
+          <div *ngIf="release?.designer?.name">{{ release.designer.name }}</div>
+          <!-- PHOTOGRAPHER -->
+          <div *ngIf="release?.photographer?.name" class="font-bold uppercase">
+            Photographer
+          </div>
+          <div *ngIf="release?.photographer?.name">
+            {{ release.photographer.name }}
+          </div>
         </div>
       </div>
       <div class="my-12">
@@ -38,7 +56,7 @@
       <div class="flex items-center justify-between">
         <h1 class="text-4xl font-bold text-gray-700">
           <a
-            class="text-bn-blue font-medium hover:underline text-blue-600"
+            class="text-blue-600 dark:text-blue-500 hover:underline"
             [routerLink]="'/artist/' + release.artist.id"
             >{{ release.artist.name }}</a
           >
@@ -46,7 +64,7 @@
         </h1>
       </div>
 
-      <ul class="flex flex-wrap border-b border-gray-200 my-6">
+      <ul class="flex flex-wrap border-b border-gray-200 my-8">
         <li class="mr-2">
           <a
             [class.active]="selectedTab === 'details'"
@@ -69,7 +87,8 @@
       <div class="content" [ngSwitch]="selectedTab">
         <div *ngSwitchCase="'details'">
           <div id="details" *ngIf="tracks?.length">
-            <table class="min-w-full">
+            <h2 class="text-1xl my-2 font-bold uppercase">Tracks</h2>
+            <table class="min-w-full overflow-x-auto border-2 border-slate-200">
               <thead class="bg-slate-100">
                 <tr>
                   <th
@@ -131,7 +150,8 @@
             </table>
           </div>
           <div class="my-8" *ngIf="personnel?.length">
-            <table class="min-w-full">
+            <h2 class="text-1xl my-2 font-bold uppercase">Personnel</h2>
+            <table class="min-w-full overflow-x-auto border-2 border-slate-200">
               <thead class="bg-slate-100">
                 <tr>
                   <th
@@ -153,13 +173,11 @@
               </thead>
               <tbody>
                 <tr *ngFor="let person of personnel">
-                  <td
-                    class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
-                  >
-                    <span
-                      class="personnel--name"
-                      [class.leader]="person.leader"
-                      >{{ person.name }}</span
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <a
+                      [routerLink]="'/artist/' + person.artist.id"
+                      class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                      >{{ person.artist.name }}</a
                     >
                   </td>
                   <td
@@ -170,7 +188,7 @@
                   <td
                     class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
                   >
-                    {{ person.appearsOn }}
+                    {{ person.appearsOn.join(", ") }}
                   </td>
                 </tr>
               </tbody>
@@ -205,6 +223,15 @@
                   >
                   <span class="font-bold uppercase">Date</span>
                   <span>{{ session.date | date : "shortDate" }}</span>
+
+                  <span
+                    *ngIf="session?.engineer?.name"
+                    class="font-bold uppercase"
+                    >Engineer</span
+                  >
+                  <span *ngIf="session?.engineer">{{
+                    session.engineer.name
+                  }}</span>
                 </div>
                 <div class="my-8" *ngIf="session?.tracks?.length">
                   <h2 class="text-1xl my-2 font-bold uppercase">Tracks</h2>
@@ -292,23 +319,28 @@
                       </thead>
                       <tbody>
                         <ng-container
-                          *ngFor="let personnel of session?.personnel"
+                          *ngFor="let musician of session?.personnel"
                         >
                           <tr>
                             <td
                               class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
                             >
-                              {{ personnel.name }}
+                              <a
+                                [routerLink]="'/artist/' + musician.artist.id"
+                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
+                              >
+                                {{ musician.artist.name }}
+                              </a>
                             </td>
                             <td
                               class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
                             >
-                              {{ personnel.instruments }}
+                              {{ musician.instruments }}
                             </td>
                             <td
                               class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800"
                             >
-                              {{ personnel.appearsOn }}
+                              {{ musician.appearsOn }}
                             </td>
                           </tr>
                         </ng-container>
